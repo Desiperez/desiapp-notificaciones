@@ -23,14 +23,20 @@ app.post('/enviar', async (req, res) => {
 
   try {
     const payload = {
-      notification: {
-        title: titulo,
-        body: mensaje
+      // ⚠️ CAMBIO CLAVE: Usamos 'data' en lugar de 'notification' 
+      // para que Android no lo bloquee en segundo plano.
+      data: {
+        titulo: titulo,
+        mensaje: mensaje
       },
-      token: token
+      token: token,
+      // 🚀 Prioridad máxima para despertar al celular de inmediato
+      android: {
+        priority: "high"
+      }
     };
 
-    // Le decimos a Firebase que despierte el celular y envíe el mensaje
+    // Le decimos a Firebase que envíe el paquete de datos directo a tu código en Android
     const response = await admin.messaging().send(payload);
     res.status(200).send({ success: true, response });
   } catch (error) {
@@ -39,7 +45,7 @@ app.post('/enviar', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Render suele usar el 10000 por defecto
 app.listen(PORT, () => {
   console.log(`Servidor de DesiApp corriendo en el puerto ${PORT}`);
 });
